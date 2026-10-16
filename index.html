@@ -2,6 +2,33 @@
 <html>
 <head>
   <title>Photo GPS Reader Debug</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      overflow: auto;
+      max-height: 500px;
+      border: 1px solid #ccc;
+    }
+
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 
@@ -11,39 +38,73 @@
 
 <div id="results"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
-
 <script>
 
-document.getElementById("photo").addEventListener("change", async (e) => {
+document.getElementById('photo').addEventListener('change', async function(e) {
 
-  const file = e.target.files[0];
+    const file = e.target.files[0];
+    const results = document.getElementById('results');
 
-  try {
+    if (!file) return;
 
-    const metadata = await exifr.parse(file);
+    try {
 
-    console.log(metadata);
+        results.innerHTML =
+            "<p>Reading metadata...</p>";
 
-    document.getElementById("results").innerHTML =
-      "<pre>" +
-      JSON.stringify(metadata, null, 2)
-      + "</pre>";
+        const metadata = await exifr.parse(file, {
+            exif: true,
+            gps: true,
+            xmp: true,
+            icc: true,
+            iptc: true
+        });
 
-  } catch (err) {
+        console.log("FULL METADATA:", metadata);
 
-    console.error(err);
+        let html = "";
 
-    document.getElementById("results").innerHTML =
-      "<pre>" +
-      err.toString()
-      + "</pre>";
+        html += "<p class='success'>Metadata Read Successfully</p>";
 
-  }
+        if (metadata.latitude && metadata.longitude) {
 
+            html += `
+                <h3>Coordinates Found</h3>
+                <p>Latitude: ${metadata.latitude}</p>
+                <p>Longitude: ${metadata.longitude}</p>
+            `;
+
+        } else {
+
+            html += `
+                <h3>No Standard GPS Coordinates Found</h3>
+                <p>This photo may store location information in a newer Google Pixel format.</p>
+            `;
+        }
+
+        html += "<h3>Raw Metadata</h3>";
+        html += "<pre>" +
+            JSON.stringify(metadata, null, 2)
+            + "</pre>";
+
+        results.innerHTML = html;
+
+    }
+    catch (err) {
+
+        console.error(err);
+
+        results.innerHTML = `
+            <p class='error'>Error Reading Metadata</p>
+            <pre>
+${err.message || err}
+            </pre>
+        `;
+    }
 });
 
 </script>
 
 </body>
 </html>
+           
