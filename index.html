@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo GPS Reader</title>
+</head>
+<body>
+
+<h1>Photo GPS Reader</h1>
+
+<input type="file" id="photo">
+
+<div id="results"></div>
+
+<script type="module">
+
+import * as exifr from 'https://cdn.jsdelivr.net/npm/exifr/dist/full.esm.mjs';
+
+document
+  .getElementById('photo')
+  .addEventListener('change', async (e) => {
+
+    const file = e.target.files[0];
+
+    const gps = await exifr.gps(file);
+
+    if(gps){
+
+        document.getElementById('results').innerHTML =
+        `
+        <h3>Coordinates Found</h3>
+        Latitude: ${gps.latitude}<br>
+        Longitude: ${gps.longitude}
+        `;
+
+    } else {
+
+        document.getElementById('results').innerHTML =
+        '<h3>No GPS data found in photo.</h3>';
+
+    }
+
+});
+</script>
+
+</body>
+</html>
