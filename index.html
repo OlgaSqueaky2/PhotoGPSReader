@@ -1,18 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PhotoGPSReader</title>
+    <title>Photo GPS Reader</title>
 </head>
 <body>
 
-<h1>PhotoGPSReader</h1>
+<h1>Photo GPS Reader</h1>
 
-<button>Test Button</button>
+<input type="file" id="photo">
 
-<input type="file">
+<div id="results"></div>
 
-<p>Hello World</p>
+<script src="https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js"></script>
+
+<script>
+
+document.getElementById('photo').addEventListener('change', async (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    try {
+
+        const gps = await exifr.gps(file);
+
+        if (gps) {
+
+            document.getElementById('results').innerHTML = `
+                <h3>GPS Found</h3>
+                <p>Latitude: ${gps.latitude}</p>
+                <p>Longitude: ${gps.longitude}</p>
+            `;
+
+        } else {
+
+            document.getElementById('results').innerHTML =
+                '<h3>No GPS coordinates found.</h3>';
+
+        }
+
+    } catch (err) {
+
+        console.error(err);
+
+        document.getElementById('results').innerHTML =
+            '<h3>Error reading photo metadata.</h3>';
+
+    }
+
+});
+
+</script>
 
 </body>
 </html>
-``
