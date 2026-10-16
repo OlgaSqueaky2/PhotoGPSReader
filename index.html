@@ -1,38 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Photo GPS Reader Debug</title>
+    <title>Photo GPS Reader</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-    pre {
-      background: #f4f4f4;
-      padding: 10px;
-      overflow: auto;
-      max-height: 500px;
-      border: 1px solid #ccc;
-    }
-
-    .success {
-      color: green;
-      font-weight: bold;
-    }
-
-    .error {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+        #results {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Photo GPS Reader Debug</h1>
+<h1>Photo GPS Reader</h1>
 
 <input type="file" id="photo">
 
@@ -40,78 +26,59 @@
 
 <script>
 
-document.getElementById('photo').addEventListener('change', async function(e) {
+document.getElementById('photo').addEventListener('change', async (e) => {
 
     const file = e.target.files[0];
-    const results = document.getElementById('results');
 
     if (!file) return;
 
     try {
 
-        results.innerHTML =
-            "<p>Reading metadata...</p>";
-            const metadata = await exifr.parse(file, {
-          exif: true,
-          gps: true,
-          xmp: true,
-          tiff: true,
-          icc: true,
-          iptc: true,
-          jfif: true
-      });
-      
-      console.log(metadata);
-      console.dir(metadata);
-      
-      const allKeys = Object.keys(metadata).sort();
-      
-      results.innerHTML =
-      `
-      <h3>Metadata Keys Found</h3>
-      <pre>${allKeys.join('\n')}</pre>
-      `;
+        const gps = await exifr.gps(file);
 
-        
-        if (metadata.latitude && metadata.longitude) {
+        if (gps &&
+            gps.latitude &&
+            gps.longitude &&
+            !isNaN(gps.latitude) &&
+            !isNaN(gps.longitude)) {
 
-            html += `
-                <h3>Coordinates Found</h3>
-                <p>Latitude: ${metadata.latitude}</p>
-                <p>Longitude: ${metadata.longitude}</p>
+            document.getElementById('results').innerHTML =
+            `
+            <h3>GPS Found</h3>
+            <p>Latitude: ${gps.latitude}</p>
+            <p>Longitude: ${gps.longitude}</p>
             `;
 
-        } else {
+            console.log("Latitude:", gps.latitude);
+            console.log("Longitude:", gps.longitude);
 
-            html += `
-                <h3>No Standard GPS Coordinates Found</h3>
-                <p>This photo may store location information in a newer Google Pixel format.</p>
+        }
+        else {
+
+            document.getElementById('results').innerHTML =
+            `
+            <h3>No GPS Coordinates Found</h3>
+            <p>This image does not contain standard EXIF GPS coordinates.</p>
             `;
+
         }
 
-        html += "<h3>Raw Metadata</h3>";
-        html += "<pre>" +
-            JSON.stringify(metadata, null, 2)
-            + "</pre>";
-
-        results.innerHTML = html;
-
     }
-    catch (err) {
+    catch(err) {
 
         console.error(err);
 
-        results.innerHTML = `
-            <p class='error'>Error Reading Metadata</p>
-            <pre>
-${err.message || err}
-            </pre>
+        document.getElementById('results').innerHTML =
+        `
+        <h3>Error Reading Metadata</h3>
+        <p>${err.message || err}</p>
         `;
+
     }
+
 });
 
 </script>
 
 </body>
 </html>
-           
