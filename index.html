@@ -1,46 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Photo GPS Reader</title>
+    <title>PhotoGPSReader</title>
 </head>
 <body>
 
-<h1>Photo GPS Reader</h1>
+<h1>PhotoGPSReader</h1>
 
-<input type="file" id="photo">
+<button>Test Button</button>
 
-<div id="results"></div>
+<input type="file">
 
-<script type="module">
-
-import * as exifr from 'https://cdn.jsdelivr.net/npm/exifr/dist/full.esm.mjs';
-
-document
-  .getElementById('photo')
-  .addEventListener('change', async (e) => {
-
-    const file = e.target.files[0];
-
-    const gps = await exifr.gps(file);
-
-    if(gps){
-
-        document.getElementById('results').innerHTML =
-        `
-        <h3>Coordinates Found</h3>
-        Latitude: ${gps.latitude}<br>
-        Longitude: ${gps.longitude}
-        `;
-
-    } else {
-
-        document.getElementById('results').innerHTML =
-        '<h3>No GPS data found in photo.</h3>';
-
-    }
-
-});
-</script>
+<p>Hello World</p>
 
 </body>
 </html>
+``
