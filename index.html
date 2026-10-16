@@ -51,21 +51,28 @@ document.getElementById('photo').addEventListener('change', async function(e) {
 
         results.innerHTML =
             "<p>Reading metadata...</p>";
+            const metadata = await exifr.parse(file, {
+          exif: true,
+          gps: true,
+          xmp: true,
+          tiff: true,
+          icc: true,
+          iptc: true,
+          jfif: true
+      });
+      
+      console.log(metadata);
+      console.dir(metadata);
+      
+      const allKeys = Object.keys(metadata).sort();
+      
+      results.innerHTML =
+      `
+      <h3>Metadata Keys Found</h3>
+      <pre>${allKeys.join('\n')}</pre>
+      `;
 
-        const metadata = await exifr.parse(file, {
-            exif: true,
-            gps: true,
-            xmp: true,
-            icc: true,
-            iptc: true
-        });
-
-        console.log("FULL METADATA:", metadata);
-
-        let html = "";
-
-        html += "<p class='success'>Metadata Read Successfully</p>";
-
+        
         if (metadata.latitude && metadata.longitude) {
 
             html += `
