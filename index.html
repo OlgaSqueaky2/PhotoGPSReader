@@ -23,7 +23,30 @@ document.getElementById('photo').addEventListener('change', async (e) => {
 
     try {
 
-        const gps = await exifr.gps(file);
+       const data = await exifr.parse(file);
+
+        console.log(data);
+        
+        if (
+            data.latitude &&
+            data.longitude &&
+            !isNaN(data.latitude) &&
+            !isNaN(data.longitude)
+        ) {
+        
+            document.getElementById('results').innerHTML = `
+                <h3>GPS Found</h3>
+                <p>Latitude: ${data.latitude}</p>
+                <p>Longitude: ${data.longitude}</p>
+            `;
+        
+        } else {
+        
+            document.getElementById('results').innerHTML =
+                "<h3>No valid GPS coordinates found.</h3>";
+        
+        }
+
 
         if (gps) {
 
