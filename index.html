@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Photo GPS Reader</title>
+  <title>Photo GPS Reader Debug</title>
 </head>
 <body>
 
-<h1>Photo GPS Reader</h1>
+<h1>Photo GPS Reader Debug</h1>
 
 <input type="file" id="photo">
 
@@ -15,62 +15,31 @@
 
 <script>
 
-document.getElementById('photo').addEventListener('change', async (e) => {
+document.getElementById("photo").addEventListener("change", async (e) => {
 
-    const file = e.target.files[0];
+  const file = e.target.files[0];
 
-    if (!file) return;
+  try {
 
-    try {
+    const metadata = await exifr.parse(file);
 
-       const data = await exifr.parse(file);
+    console.log(metadata);
 
-        console.log(data);
-        
-        if (
-            data.latitude &&
-            data.longitude &&
-            !isNaN(data.latitude) &&
-            !isNaN(data.longitude)
-        ) {
-        
-            document.getElementById('results').innerHTML = `
-                <h3>GPS Found</h3>
-                <p>Latitude: ${data.latitude}</p>
-                <p>Longitude: ${data.longitude}</p>
-            `;
-        
-        } else {
-        
-            document.getElementById('results').innerHTML =
-                "<h3>No valid GPS coordinates found.</h3>";
-        
-        }
+    document.getElementById("results").innerHTML =
+      "<pre>" +
+      JSON.stringify(metadata, null, 2)
+      + "</pre>";
 
+  } catch (err) {
 
-        if (gps) {
+    console.error(err);
 
-            document.getElementById('results').innerHTML = `
-                <h3>GPS Found</h3>
-                <p>Latitude: ${gps.latitude}</p>
-                <p>Longitude: ${gps.longitude}</p>
-            `;
+    document.getElementById("results").innerHTML =
+      "<pre>" +
+      err.toString()
+      + "</pre>";
 
-        } else {
-
-            document.getElementById('results').innerHTML =
-                '<h3>No GPS coordinates found.</h3>';
-
-        }
-
-    } catch (err) {
-
-        console.error(err);
-
-        document.getElementById('results').innerHTML =
-            '<h3>Error reading photo metadata.</h3>';
-
-    }
+  }
 
 });
 
